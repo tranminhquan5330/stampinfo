@@ -5,3 +5,7 @@ MT04|Kỷ niệm 1 năm ngày Nguyễn Văn Trỗi hy sinh|15/10/1965|Đặng Qu
 MT05|Kỷ niệm 5 năm ngày thành lập Mặt trận Dân tộc Giải phóng miền Nam Việt Nam|20/12/1965|Trần Huy Khánh|nhà in Tiến Bộ|1 tem|
 MT06|Kỷ niệm 7 năm ngày thành lập Mặt trận Dân tộc Giải phóng miền Nam Việt Nam|20/12/1967|Trần Huy Khánh|nhà in Tiến Bộ|3 tem|
 MT07|Kỷ niệm 8 năm ngày thành lập Mặt trận Dân tộc Giải phóng miền Nam Việt Nam|20/12/1968|Trần Huy Khánh|nhà in Tiến Bộ|3 tem|
+MT08|Ký hoạ kháng chiến chống Mỹ|20/12/1968|Cổ Tấn Long Châu, Huỳnh Phương Đông|nhà in Tiến Bộ|4 tem|
+MT09|Kỷ niệm 100 năm ngày sinh V.I. Lê-nin|22/04/1970|Nguyễn Quốc Khánh|nhà in Tiến Bộ|4 tem|V.I. Lê-nin (1870–1924) là nhà lý luận chính trị kiệt xuất, lãnh tụ của vĩ đại của giai cấp công nhân thế giới, người dẫn dắt Cách mạng Tháng Mười Nga (1917) thành công và sáng lập ra Nhà nước Xã hội Chủ nghĩa đầu tiên trên thế giới (Liên Xô).
+MT10|Kỷ niệm 80 năm ngày sinh Chủ tịch Hồ Chí Minh|19/05/1970|Nguyễn Hiệp|nhà in Tiến Bộ|4 tem|
+MT11|Kỷ niệm 10 năm ngày thành lập Mặt trận Dân tộc Giải phóng miền Nam Việt Nam|20/12/1970|Nguyễn Hiệp|nhà in Tiến Bộ|4 tem|
