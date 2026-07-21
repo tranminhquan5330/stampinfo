@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ Thống Trích Lục Văn Bản</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f7f6; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #0056b3; }
+    .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+    input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+    button { padding: 12px 20px; background: #0056b3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+    button:hover { background: #004494; }
+    #result { margin-top: 20px; padding: 15px; border-radius: 4px; display: none; background: #e7f3fe; border-left: 5px solid #0056b3; }
+    .error { background: #ffe6e6; border-left: 5px solid #dc3545; color: #dc3545; padding: 15px; border-radius: 4px; }
+    .meta { color: #555; font-size: 14px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Tra Cứu Văn Bản</h1>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Nhập mã số (VD: VB001)" onkeypress="if(event.key === 'Enter') timKiem()">
+      <button onclick="timKiem()">Tìm kiếm</button>
+    </div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    async function timKiemDuLieu(maSo) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.style.display = 'block';
+      resultDiv.className = '';
+      resultDiv.innerHTML = 'Đang tìm kiếm...';
+
+      try {
+        const response = await fetch('data.txt');
+        if (!response.ok) throw new Error("Không tải được dữ liệu.");
+        const text = await response.text();
+        
+        const lines = text.split('\n');
+        const searchCode = maSo.trim().toLowerCase();
+        let found = false;
+
+        for (let line of lines) {
+          if (!line.trim()) continue;
+          
+          const columns = line.split('|');
+          const code = columns[0].trim().toLowerCase();
+
+          if (code === searchCode) {
+            resultDiv.innerHTML = `
+              <h3 style="margin-top:0; color:#0056b3;">${columns[1]}</h3>
+              <div class="meta"><strong>Mã số:</strong> ${columns[0]} &nbsp;|&nbsp; <strong>Ngày ban hành:</strong> ${columns[2]}</div>
+              <div style="line-height: 1.5;">${columns[3]}</div>
+            `;
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) {
+          resultDiv.className = 'error';
+          resultDiv.innerHTML = `Không tìm thấy văn bản nào mang mã số: <strong>${maSo}</strong>`;
+        }
+      } catch (error) {
+        resultDiv.className = 'error';
+        resultDiv.innerHTML = `Lỗi: ${error.message}`;
+      }
+    }
+
+    function timKiem() {
+      const val = document.getElementById('searchInput').value.trim();
+      if (val) {
+        window.history.pushState({}, '', '?ma=' + encodeURIComponent(val));
+        timKiemDuLieu(val);
+      }
+    }
+
+    window.onload = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const maSo = urlParams.get('ma');
+      if (maSo) {
+        document.getElementById('searchInput').value = maSo;
+        timKiemDuLieu(maSo);
+      }
+    }
+  </script>
+</body>
+</html>
