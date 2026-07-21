@@ -1,2 +1,2 @@
-MT01|Kỷ niệm 3 năm ngày thành lập Mặt trận Dân tộc Giải phóng miền Nam Việt Nam|Ngày phát hành: 20/12/1963|Hoạ sĩ thiết kế: Lê Thanh Đức|nhà in Tiến Bộ| Số lượng: 3 tem
-MT02|Kỷ niệm 3 năm ngày thành lập Mặt trận Dân tộc Giải phóng miền Nam Việt Nam|Ngày phát hành: 20/12/1963|Hoạ sĩ thiết kế: Trần Lư­ơng, Nguyễn Thế Vinh|nhà in Tiến Bộ| Số lượng: 2 tem
+MT01|Kỷ niệm 3 năm ngày thành lập Mặt trận Dân tộc Giải phóng miền Nam Việt Nam|20/12/1963|Lê Thanh Đức|nhà in Tiến Bộ|3 tem
+MT02|Kỷ niệm 3 năm ngày thành lập Mặt trận Dân tộc Giải phóng miền Nam Việt Nam|20/12/1963|Trần Lư­ơng, Nguyễn Thế Vinh|nhà in Tiến Bộ|2 tem
