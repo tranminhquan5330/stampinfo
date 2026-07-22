@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ thống Trích lục Mã QR</title>
+  
+  <!-- Thư viện quét mã QR qua Camera -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    :root {
+      --primary-color: #0284c7;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-color: #334155;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px 15px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    h2 { margin-top: 0; font-size: 1.25rem; text-align: center; color: #0f172a; }
+
+    #reader {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      border: none !important;
+    }
+
+    /* Khung kết quả trích lục */
+    .result-card { display: none; }
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      background-color: #e0f2fe;
+      color: #0369a1;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .status-tag {
+      background-color: #dcfce7;
+      color: #15803d;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+    }
+
+    .info-group { margin-bottom: 10px; }
+    .info-label { font-size: 0.85rem; color: #64748b; }
+    .info-value { font-size: 1rem; font-weight: 500; margin-top: 2px; }
+
+    /* Nút bấm & Báo lỗi */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 15px;
+    }
+    .btn:hover { opacity: 0.9; }
+
+    .error-card {
+      display: none;
+      background-color: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Khung Camera Quét QR -->
+  <div class="card" id="scannerContainer">
+    <h2>Quét Mã QR Để Trích Lục</h2>
+    <div id="reader"></div>
+  </div>
+
+  <!-- Khung Hiển Thị Kết Quả -->
+  <div class="card result-card" id="resultCard">
+    <div class="result-header">
+      <span class="badge" id="resId">MA00</span>
+      <span class="status-tag" id="resStatus">Trạng thái</span>
+    </div>
+    
+    <div class="info-group">
+      <div class="info-label">Tên văn bản / Hồ sơ:</div>
+      <div class="info-value" id="resTitle">---</div>
+    </div>
+
+    <div class="info-group">
+      <div class="info-label">Ngày cấp / Khởi tạo:</div>
+      <div class="info-value" id="resDate">---</div>
+    </div>
+
+    <div class="info-group" style="margin-top: 15px;">
+      <div class="info-label">Nội dung chi tiết:</div>
+      <div class="info-value" id="resContent" style="white-space: pre-line; background: #f8fafc; padding: 10px; border-radius: 6px;">---</div>
+    </div>
+
+    <button class="btn" onclick="resetScanner()">Quét mã khác</button>
+  </div>
+
+  <!-- Khung Báo Lỗi -->
+  <div class="card error-card" id="errorCard">
+    <p>Không tìm thấy dữ liệu cho mã: <b id="errCode">---</b></p>
+    <button class="btn" style="background-color: #991b1b;" onclick="resetScanner()">Thử lại</button>
+  </div>
+
+  <script>
+    let html5QrcodeScanner = null;
+
+    // 1. Hàm đọc và phân tích file data.txt (CSV dạng pipe |)
+    async function fetchDatabase() {
+      const response = await fetch('data.txt');
+      if (!response.ok) throw new Error("Không thể tải file CSDL");
+      
+      const rawText = await response.text();
+      const db = {};
+
+      // Tach từng dòng
+      const lines = rawText.split('\n');
+      lines.forEach(line => {
+        const cleanLine = line.trim();
+        if (cleanLine) {
+          const [id, title, date, status, content] = cleanLine.split('|');
+          if (id) {
+            db[id.trim()] = {
+              title: title ? title.trim() : '',
+              date: date ? date.trim() : '',
+              status: status ? status.trim() : '',
+              content: content ? content.trim() : ''
+            };
+          }
+        }
+      });
+      return db;
+    }
+
+    // 2. Hàm tra cứu và cập nhật giao diện + URL
+    async function processLookup(code, updateHistory = true) {
+      // Ẩn camera khi đã nhận diện
+      stopScanner();
+
+      // Cập nhật đường dẫn URL (?id=MA01) mà không load lại trang
+      if (updateHistory) {
+        const newUrl = window.location.pathname + '?id=' + encodeURIComponent(code);
+        window.history.pushState({ id: code }, '', newUrl);
+      }
+
+      try {
+        const db = await fetchDatabase();
+        const record = db[code];
+
+        document.getElementById('resultCard').style.display = 'none';
+        document.getElementById('errorCard').style.display = 'none';
+
+        if (record) {
+          document.getElementById('resId').innerText = code;
+          document.getElementById('resTitle').innerText = record.title;
+          document.getElementById('resDate').innerText = record.date;
+          document.getElementById('resStatus').innerText = record.status;
+          document.getElementById('resContent').innerText = record.content;
+          document.getElementById('resultCard').style.display = 'block';
+        } else {
+          document.getElementById('errCode').innerText = code;
+          document.getElementById('errorCard').style.display = 'block';
+        }
+      } catch (err) {
+        alert("Lỗi: " + err.message);
+      }
+    }
+
+    // 3. Khởi tạo Camera
+    function startScanner() {
+      document.getElementById('scannerContainer').style.display = 'block';
+      if (!html5QrcodeScanner) {
+        html5QrcodeScanner = new Html5QrcodeScanner(
+          "reader", 
+          { fps: 10, qrbox: { width: 220, height: 220 } },
+          false
+        );
+      }
+      
+      html5QrcodeScanner.render((decodedText) => {
+        let code = decodedText.trim();
+        // Nếu QR chứa đường dẫn URL (ví dụ https://domain.com/?id=MA01), lấy riêng giá trị id
+        if (code.includes('id=')) {
+          const urlParams = new URLSearchParams(code.substring(code.indexOf('?')));
+          if (urlParams.has('id')) code = urlParams.get('id');
+        }
+        processLookup(code);
+      }, () => {});
+    }
+
+    // Dừng camera để tiết kiệm pin/tài nguyên
+    function stopScanner() {
+      if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear().catch(() => {});
+      }
+      document.getElementById('scannerContainer').style.display = 'none';
+    }
+
+    // Đặt lại trạng thái để quét mã mới
+    function resetScanner() {
+      document.getElementById('resultCard').style.display = 'none';
+      document.getElementById('errorCard').style.display = 'none';
+      // Xóa tham số ?id trên URL khi quay lại màn hình quét
+      window.history.pushState({}, '', window.location.pathname);
+      startScanner();
+    }
+
+    // 4. Xử lý khi tải trang hoặc nhấn nút Back/Forward trên trình duyệt
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const idFromUrl = urlParams.get('id');
+
+      if (idFromUrl) {
+        // Nếu truy cập trực tiếp bằng đường link có ?id=MA01
+        processLookup(idFromUrl, false);
+      } else {
+        // Nếu truy cập trang chủ bình thường -> Bật camera
+        startScanner();
+      }
+    });
+
+    // Bắt sự kiện người dùng bấm nút Back/Forward của trình duyệt
+    window.addEventListener('popstate', (e) => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const idFromUrl = urlParams.get('id');
+      if (idFromUrl) {
+        processLookup(idFromUrl, false);
+      } else {
+        resetScanner();
+      }
+    });
+  </script>
+</body>
+</html>
