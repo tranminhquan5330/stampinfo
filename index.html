@@ -111,21 +111,31 @@
   <div class="card result-card" id="resultCard">
     <div class="result-header">
       <span class="badge" id="resId">MA00</span>
-      <span class="status-tag" id="resStatus">Trạng thái</span>
+      <span class="status-tag" id="resStatus">Hoạ sĩ</span>
     </div>
     
     <div class="info-group">
-      <div class="info-label">Tên văn bản / Hồ sơ:</div>
+      <div class="info-label">Thông tin:</div>
       <div class="info-value" id="resTitle">---</div>
     </div>
 
     <div class="info-group">
-      <div class="info-label">Ngày cấp / Khởi tạo:</div>
+      <div class="info-label">Ngày phát hành:</div>
       <div class="info-value" id="resDate">---</div>
     </div>
 
+    <div class="info-group">
+      <div class="info-label">Nơi in:</div>
+      <div class="info-value" id="resPrint">---</div>
+    </div>
+
+    <div class="info-group">
+      <div class="info-label">Số lượng:</div>
+      <div class="info-value" id="resQty">---</div>
+    </div>
+
     <div class="info-group" style="margin-top: 15px;">
-      <div class="info-label">Nội dung chi tiết:</div>
+      <div class="info-label">Nội dung:</div>
       <div class="info-value" id="resContent" style="white-space: pre-line; background: #f8fafc; padding: 10px; border-radius: 6px;">---</div>
     </div>
 
@@ -154,7 +164,7 @@
       lines.forEach(line => {
         const cleanLine = line.trim();
         if (cleanLine) {
-          const [id, title, date, status, content] = cleanLine.split('|');
+          const [id, title, date, status, print, qty, content] = cleanLine.split('|');
           if (id) {
             db[id.trim()] = {
               title: title ? title.trim() : '',
@@ -191,6 +201,8 @@
           document.getElementById('resTitle').innerText = record.title;
           document.getElementById('resDate').innerText = record.date;
           document.getElementById('resStatus').innerText = record.status;
+          document.getElementById('resPrint').innerText = record.print;
+          document.getElementById('resQty').innerText = record.qty;
           document.getElementById('resContent').innerText = record.content;
           document.getElementById('resultCard').style.display = 'block';
         } else {
