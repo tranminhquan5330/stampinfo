@@ -285,30 +285,23 @@ function parseTextToData(rawText) {
       return str.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    // 2. Hiển thị bảng
-    function renderTable() {
-      const tbody = document.getElementById('dataTableBody');
-      tbody.innerHTML = '';
-
-      if (records.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Chưa có dữ liệu. Hãy thêm mới!</td></tr>';
-        document.getElementById('totalRows').innerText = 0;
-        return;
-      }
-
-      records.forEach((item, index) => {
+// ĐIỂM THAY ĐỔI: Chạy vòng lặp ngược từ dưới lên trên (Last In - First Out)
+      for (let index = records.length - 1; index >= 0; index--) {
+        const item = records[index];
         const tr = document.createElement('tr');
-        // Đánh dấu nền nếu dòng đó đang được sửa
         if (index === editIndex) tr.style.backgroundColor = '#fffbeb'; 
+
+        const tooltipTitle = escapeHTML(item.title);
+        const tooltipContent = escapeHTML(item.content);
 
         tr.innerHTML = `
           <td><span class="badge-code">${item.id}</span></td>
-          <td><b>${item.title}</b></td>
+          <td><div class="truncate-title" title="${tooltipTitle}"><b>${item.title}</b></div></td>
           <td>${item.date}</td>
           <td>${item.status}</td>
           <td>${item.print}</td>
           <td>${item.qty}</td>
-          <td style="white-space: pre-line; max-width: 300px; font-size: 0.85rem;">${item.content}</td>
+          <td><div class="truncate-content" title="${tooltipContent}">${item.content}</td>
           <td>
             <div class="action-btns">
               <button class="btn btn-warning" onclick="startEdit(${index})">Sửa</button>
