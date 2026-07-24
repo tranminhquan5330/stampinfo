@@ -174,7 +174,7 @@
         </div>
       </div>
       <div style="display: flex; gap: 10px;">
-        <button type="submit" class="btn btn-primary" id="btnSubmit">Thêm vào bảng</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmit" onclick="processDataForm()">Thêm vào bảng</button>
         <button type="button" class="btn btn-secondary" id="btnCancelEdit" style="display: none;" onclick="cancelEdit()">Hủy chỉnh sửa</button>
       </div>
     </form>
@@ -327,9 +327,9 @@ function parseTextToData(rawText) {
     }
 
     // 3. Xử lý Form: Thêm Mới hoặc Cập Nhật
-    function handleFormSubmit(e) {
-      e.preventDefault();
-      
+// HÀM XỬ LÝ NÚT BẤM MỚI (Bắt mọi lỗi bằng Alert)
+    function processDataForm() {
+      try {
       const formId = document.getElementById('inputId').value.trim();
       const formTitle = document.getElementById('inputTitle').value.trim();
       const formDate = document.getElementById('inputDate').value.trim();
@@ -338,13 +338,18 @@ function parseTextToData(rawText) {
       const formQty = document.getElementById('inputQty').value.trim();
       const formContent = document.getElementById('inputContent').value.trim();
 
-      // Kiểm tra trùng ID (Chỉ báo lỗi nếu mã trùng với 1 mã khác KHÔNG phải mã đang sửa)
-      const isDuplicate = records.some((r, idx) => r.id === formId && idx !== editIndex);
-      if (isDuplicate) {
-        alert(`Lỗi: Mã "${formId}" đã tồn tại trong hệ thống! Vui lòng chọn mã khác.`);
-        return;
-      }
+        // Kiểm tra xem người dùng có bỏ trống ô nào không
+        if (!formId || !formTitle || !formDate || !formStatus || !formContent) {
+          alert("⚠️ VUI LÒNG ĐIỀN ĐẦY ĐỦ THÔNG TIN VÀO CÁC Ô TRỐNG!\n\n(Bạn đang để trống một số mục, hãy kiểm tra lại).");
+          return;
+        }
 
+        const isDuplicate = records.some((r, idx) => r.id === formId && idx !== editIndex);
+        if (isDuplicate) {
+          alert(`⚠️ LỖI: Mã "${formId}" đã tồn tại! Vui lòng chọn mã khác.`);
+          return;
+        }
+     
       // Xoá dấu | trong nội dung để tránh làm hỏng cấu trúc file txt
       const safeTitle = formTitle.replace(/\|/g, '-');
       const safeDate = formDate.replace(/\|/g, '-');
@@ -360,13 +365,19 @@ function parseTextToData(rawText) {
         records.push(newData);
       } else {
         // CHẾ ĐỘ: CẬP NHẬT
-        records[editIndex] = newData;
-        alert(`Đã cập nhật thành công mã "${formId}"`);
-      }
+      records[editIndex] = newData; // Sửa dữ liệu
+        }
 
       // Đưa giao diện về trạng thái bình thường
       cancelEdit();
       renderTable();
+        document.getElementById('statusText').innerHTML = "✅ Đã Thêm/Sửa thành công! Nhớ bấm nút 'Tải file' màu xanh lá để lưu lại.";
+        document.getElementById('statusText').style.color = "#15803d";
+        
+      } catch (err) {
+        // Nếu có lỗi hệ thống, nó sẽ báo thẳng lên màn hình
+        alert("⚠️ ĐÃ XẢY RA LỖI HỆ THỐNG: " + err.message);
+      }
     }
 
     // 4. Kích hoạt chế độ Sửa
