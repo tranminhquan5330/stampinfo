@@ -501,7 +501,7 @@ function parseTextToData(rawText) {
 
         // Bước 2: Chuẩn bị nội dung file mới dưới dạng base64 (hỗ trợ tiếng Việt)
         const textContent = records.map(r => 
-          `${r.id}|${r.title}|${r.date}|${r.status}|${r.content}`
+          `${r.id}|${r.title}|${r.date}|${r.status}|${r.print}|${r.qty}|${r.content}`
         ).join('\n');
         
         const base64Content = btoa(unescape(encodeURIComponent(textContent)));
