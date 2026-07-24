@@ -265,7 +265,7 @@
   <div class="card">
     <div class="status-bar" id="statusBar">
       <span id="statusText" style="color: #64748b;">⏳ Đang tự động tải dữ liệu từ data.txt...</span>
-      <button class="btn btn-success" onclick="saveDirectlyToGitHub()">🚀 Lưu trực tiếp lên GitHub</button>
+      <button class="btn btn-success" onclick="saveDirectlyToGitHub()">Cập nhật lên cơ sở dữ liệu</button>
     </div>
   </div>
   
@@ -577,7 +577,7 @@ function parseTextToData(rawText) {
       }
 
       const statusText = document.getElementById('statusText');
-      statusText.innerHTML = "⏳ Đang kết nối lên GitHub để cập nhật...";
+      statusText.innerHTML = "⏳ Đang kết nối lên cơ sở dữ liệu để cập nhật...";
       statusText.style.color = "#0284c7";
 
       const apiPath = `https://api.github.com/repos/${owner}/${repo}/contents/data.txt`;
@@ -615,7 +615,7 @@ function parseTextToData(rawText) {
 
         if (!putRes.ok) throw new Error("Ghi đè file thất bại. Token có thể đã hết hạn hoặc không đủ quyền!");
 
-        statusText.innerHTML = "✅ Lưu thành công trực tiếp lên GitHub! Đợi vài giây để hệ thống web cập nhật.";
+        statusText.innerHTML = "✅ Cập nhật cơ sở dữ liệu thành công! Đợi vài giây để hệ thống web cập nhật.";
         statusText.style.color = "#15803d";
         
         // Tải lại dữ liệu mới sau khi push thành công
