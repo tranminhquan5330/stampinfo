@@ -190,36 +190,8 @@
 </head>
 <body>
   <!-- HEADER GỒM TIÊU ĐỀ VÀ NÚT BÁNH RĂNG -->
-  <div class="header-container">
-  <button class="gear-btn" onclick="openSettingsModal()" title="Cấu hình kết nối GitHub">⚙️</button>
   <h2>Quản Lý Dữ Liệu Trích Lục</h2>
-  </div>
 
-  <!-- POPUP MODAL CẤU HÌNH GITHUB -->
-  <div class="modal-overlay" id="settingsModal" onclick="handleOutsideClick(event)">
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeSettingsModal()">✕</button>
-      <h3 style="color: #0f172a; margin-bottom: 5px;">⚙️ Cấu hình GitHub API</h3>
-      <p style="color: #64748b; font-size: 0.85rem; margin-top: 0;">Điền thông tin kho chứa để liên kết trực tiếp.</p>
-      
-      <div class="config-grid-modal">
-        <div>
-          <label style="font-size: 0.85rem; font-weight: 500;">Tên tài khoản GitHub (Owner):</label>
-          <input type="text" id="ghOwner" placeholder="VD: username">
-        </div>
-        <div>
-          <label style="font-size: 0.85rem; font-weight: 500;">Tên Repository:</label>
-          <input type="text" id="ghRepo" placeholder="VD: repository-name">
-        </div>
-        <div>
-          <label style="font-size: 0.85rem; font-weight: 500;">GitHub Personal Access Token (PAT):</label>
-          <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
-        </div>
-        <button class="btn btn-primary" onclick="saveConfig()" style="margin-top: 5px;">Lưu cấu hình</button>
-      </div>
-      <small style="color: #64748b; display: block; margin-top: 12px; line-height: 1.4;">* Token cần quyền <b>repo</b>. Thông tin được lưu mã hóa an toàn trên trình duyệt của riêng bạn.</small>
-    </div>
-  </div>
   <!-- Khu vực 1: Trạng thái & Nút Xuất File -->
   <div class="card">
     <div class="status-bar" id="statusBar">
@@ -300,12 +272,15 @@
     let editIndex = -1; 
 
     // Tải thông tin cấu hình cũ vào ô input khi khởi động
-    window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('ghOwner').value = localStorage.getItem('gh_owner') || '';
-      document.getElementById('ghRepo').value = localStorage.getItem('gh_repo') || '';
-      document.getElementById('ghToken').value = localStorage.getItem('gh_token') || '';
-      loadDataAutomatically();
-    });
+window.addEventListener('DOMContentLoaded', () => {
+  // Gán cứng thông tin trực tiếp vào đây (Thay thế thông tin của bạn vào)
+  if (!localStorage.getItem('gh_token')) {
+    localStorage.setItem('gh_owner', 'tranminhquan5330');
+    localStorage.setItem('gh_repo', 'stampinfo');
+    localStorage.setItem('gh_token', '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');
+  }
+  loadDataAutomatically();
+});
 
     // Các hàm điều khiển Popup Modal
     function openSettingsModal() {
