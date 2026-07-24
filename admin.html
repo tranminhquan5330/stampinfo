@@ -354,8 +354,8 @@ function parseTextToData(rawText) {
       const safeTitle = formTitle.replace(/\|/g, '-');
       const safeDate = formDate.replace(/\|/g, '-');
       const safeStatus = formStatus.replace(/\|/g, '-');
-      const safePrint = formPrint.print(/\|/g, '-');
-      const safeQty = formQty.qty(/\|/g, '-');
+      const safePrint = formPrint.replace(/\|/g, '-');
+      const safeQty = formQty.replace(/\|/g, '-');
       const safeContent = formContent.replace(/\|/g, '-').replace(/\n/g, ' '); // Đổi ngắt dòng thành khoảng trắng
 
       const newData = { id: formId, title: safeTitle, date: safeDate, status: safeStatus, status: safePrint, status: safeQty, content: safeContent };
