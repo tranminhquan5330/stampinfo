@@ -302,13 +302,15 @@ function parseTextToData(rawText) {
 
         const tooltipTitle = escapeHTML(item.title);
         const tooltipContent = escapeHTML(item.content);
+        const tooltipStatus = escapeHTML(item.status);
+        const tooltipPrint = escapeHTML(item.print);
 
         tr.innerHTML = `
           <td><span class="badge-code">${item.id}</span></td>
           <td><div class="truncate-title" title="${tooltipTitle}"><b>${item.title}</b></div></td>
           <td>${item.date}</td>
-          <td><div class="truncate-title" title="${tooltipTitle}">${item.status}</div></td>
-          <td><div class="truncate-title" title="${tooltipTitle}">${item.print}</div></td>
+          <td><div class="truncate-title" title="${tooltipStatus}">${item.status}</div></td>
+          <td><div class="truncate-title" title="${tooltipPrint}">${item.print}</div></td>
           <td>${item.qty}</td>
           <td><div class="truncate-content" title="${tooltipContent}">${item.content}</td>
           <td>
