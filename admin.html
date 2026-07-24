@@ -149,7 +149,7 @@
   <div class="card">
     <div class="status-bar" id="statusBar">
       <span id="statusText" style="color: #64748b;">⏳ Đang tự động tải dữ liệu từ data.txt...</span>
-      <button class="btn btn-success" onclick="downloadTxtFile()">💾 Tải file data.txt đã chỉnh sửa về máy</button>
+      <button class="btn btn-success" onclick="saveDirectlyToGitHub()">🚀 Lưu trực tiếp lên GitHub</button>
     </div>
   </div>
 
@@ -385,7 +385,7 @@ function parseTextToData(rawText) {
       const safeQty = formQty.replace(/\|/g, '-');
       const safeContent = formContent.replace(/\|/g, '-').replace(/\n/g, ' '); // Đổi ngắt dòng thành khoảng trắng
 
-      const newData = { id: formId, title: safeTitle, date: safeDate, status: safeStatus, status: safePrint, status: safeQty, content: safeContent };
+      const newData = { id: formId, title: safeTitle, date: safeDate, status: safeStatus, print: safePrint, qty: safeQty, content: safeContent };
 
       if (editIndex === -1) {
         // CHẾ ĐỘ: THÊM MỚI
@@ -467,27 +467,72 @@ function parseTextToData(rawText) {
       }
     }
 
-    // 6. Xuất Dữ liệu ra file text
-    function downloadTxtFile() {
-      if (records.length === 0) {
-        alert("Dữ liệu đang trống, không có gì để xuất!");
+   // HÀM LƯU TRỰC TIẾP LÊN GITHUB QUA API
+    async function saveDirectlyToGitHub() {
+      const owner = localStorage.getItem('gh_owner');
+      const repo = localStorage.getItem('gh_repo');
+      const token = localStorage.getItem('gh_token');
+
+      if (!owner || !repo || !token) {
+        alert("⚠️ Vui lòng mở mục 'Cấu hình kết nối trực tiếp GitHub' ở trên cùng và điền đầy đủ thông tin trước!");
         return;
       }
 
-      // Nối các thuộc tính bằng dấu | và nối các dòng bằng ký tự xuống dòng (\n)
-      const textContent = records.map(r => 
-        `${r.id}|${r.title}|${r.date}|${r.status}|${r.content}`
-      ).join('\n');
+      if (records.length === 0) {
+        alert("Bảng trống, không có gì để lưu!");
+        return;
+      }
 
-      const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'data.txt';
-      link.click();
+      const statusText = document.getElementById('statusText');
+      statusText.innerHTML = "⏳ Đang kết nối lên GitHub để cập nhật...";
+      statusText.style.color = "#0284c7";
+
+      const apiPath = `https://api.github.com/repos/${owner}/${repo}/contents/data.txt`;
+
+      try {
+        // Bước 1: Lấy thông tin mã SHA hiện tại của file trên GitHub (bắt buộc phải có để update)
+        const getRes = await fetch(apiPath, {
+          headers: { 'Authorization': `token ${token}` }
+        });
+
+        if (!getRes.ok) throw new Error("Không thể kết nối đến GitHub. Kiểm tra lại Tên tài khoản, Tên Repo hoặc Token!");
+        const fileData = await getRes.json();
+        const fileSha = fileData.sha;
+
+        // Bước 2: Chuẩn bị nội dung file mới dưới dạng base64 (hỗ trợ tiếng Việt)
+        const textContent = records.map(r => 
+          `${r.id}|${r.title}|${r.date}|${r.status}|${r.content}`
+        ).join('\n');
+        
+        const base64Content = btoa(unescape(encodeURIComponent(textContent)));
+
+        // Bước 3: Gửi lệnh PUT để ghi đè file trực tiếp lên GitHub
+        const putRes = await fetch(apiPath, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: "Cập nhật dữ liệu tự động từ trang Quản lý Admin",
+            content: base64Content,
+            sha: fileSha
+          })
+        });
+
+        if (!putRes.ok) throw new Error("Ghi đè file thất bại. Token có thể đã hết hạn hoặc không đủ quyền!");
+
+        statusText.innerHTML = "✅ Lưu thành công trực tiếp lên GitHub! Đợi vài giây để hệ thống web cập nhật.";
+        statusText.style.color = "#15803d";
+        
+        // Tải lại dữ liệu mới sau khi push thành công
+        setTimeout(loadDataAutomatically, 3000);
+
+      } catch (err) {
+        statusText.innerHTML = "❌ LỖI: " + err.message;
+        statusText.style.color = "#dc2626";
+      }
     }
-
-  // Chạy khi mở trang
-    window.addEventListener('DOMContentLoaded', loadDataAutomatically);
   </script>
 </body>
 </html>
