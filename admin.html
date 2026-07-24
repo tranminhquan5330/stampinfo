@@ -210,49 +210,57 @@
   let records = [];
     let editIndex = -1; 
 
-    // 1. TỰ ĐỘNG tải dữ liệu và HIỂN THỊ LỖI CHI TIẾT
-    async function loadDataAutomatically() {
+    // Tải cấu hình GitHub đã lưu từ trước
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('ghOwner').value = localStorage.getItem('gh_owner') || '';
+      document.getElementById('ghRepo').value = localStorage.getItem('gh_repo') || '';
+      document.getElementById('ghToken').value = localStorage.getItem('gh_token') || '';
+      loadDataAutomatically();
+    });
+
+    function saveConfig() {
+      const owner = document.getElementById('ghOwner').value.trim();
+      const repo = document.getElementById('ghRepo').value.trim();
+      const token = document.getElementById('ghToken').value.trim();
+      
+      if (!owner || !repo || !token) {
+        alert("⚠️ Vui lòng điền đầy đủ thông tin cấu hình GitHub!");
+        return;
+      }
+      
+      localStorage.setItem('gh_owner', owner);
+      localStorage.setItem('gh_repo', repo);
+      localStorage.setItem('gh_token', token);
+      alert("✅ Đã lưu cấu hình thành công!");
+      loadDataAutomatically();
+    }
+
+    
+   async function loadDataAutomatically() {
       const statusText = document.getElementById('statusText');
-      
-      // Lấy URL hiện tại để đoán đường dẫn
-      const isLocal = window.location.protocol === 'file:';
-      
-      if (isLocal) {
-        statusText.innerHTML = "❌ LỖI BẢO MẬT: Bạn đang mở file offline trên máy tính (file://). Hãy mở bằng link https:// của GitHub Pages!";
+      if (window.location.protocol === 'file:') {
+        statusText.innerHTML = "❌ LỖI: Hãy dùng link web GitHub Pages để chạy!";
         statusText.style.color = "#dc2626";
-        document.getElementById('dataTableBody').innerHTML = '<tr><td colspan="6" style="text-align: center; color: #dc2626; font-weight: bold;">Chức năng tự tải dữ liệu không hoạt động trên ổ cứng. Vui lòng truy cập qua link web!</td></tr>';
         return;
       }
 
-      // Xóa ./ đi, chỉ dùng tên file để tránh lỗi định tuyến của GitHub Pages
-      const url = 'data.txt?t=' + new Date().getTime(); 
-      
       try {
-        statusText.innerHTML = "⏳ Đang kết nối tới server để tải " + url + "...";
+        const currentUrl = window.location.href.split('?')[0];
+        const basePath = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+        const fileUrl = basePath + '/data.txt?t=' + new Date().getTime();
+
+        statusText.innerHTML = "⏳ Đang kết nối tải dữ liệu...";
         
-        const response = await fetch(url, { 
-          method: 'GET',
-          cache: 'no-store' 
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Server trả về mã lỗi ${response.status} (File data.txt có thể chưa được up lên, hoặc bị sai tên).`);
-        }
+        const response = await fetch(fileUrl, { cache: 'no-store' });
+        if (!response.ok) throw new Error("Không tìm thấy file data.txt tại " + fileUrl);
         
         const rawText = await response.text();
-        
-        if (rawText.trim() === "") {
-          throw new Error("File data.txt đang trống không (0 byte).");
-        }
-
         parseTextToData(rawText);
-        
-        statusText.innerHTML = "✅ Đã tải dữ liệu tự động thành công!";
+        statusText.innerHTML = "✅ Tải dữ liệu thành công!";
         statusText.style.color = "#15803d";
       } catch (err) {
         statusText.innerHTML = "❌ LỖI: " + err.message;
         statusText.style.color = "#dc2626";
-        document.getElementById('dataTableBody').innerHTML = `<tr><td colspan="6" style="text-align: center; color: #dc2626;">Lỗi tải dữ liệu. Chi tiết: ${err.message}</td></tr>`;
       }
     }
 
