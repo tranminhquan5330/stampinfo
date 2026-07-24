@@ -33,11 +33,16 @@
 
     h2, h3 { margin-top: 0; color: #0f172a; }
 
-    .action-bar {
+    /* Trạng thái tải dữ liệu */
+    .status-bar {
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 15px;
+      background-color: #f1f5f9;
+      border-radius: 8px;
       margin-bottom: 15px;
+      font-weight: 500;
     }
 
     /* Bố cục Form */
@@ -115,13 +120,12 @@
 
   <h2>⚙️ Quản Lý Dữ Liệu Trích Lục (data.txt)</h2>
 
-  <!-- Khu vực 1: Tải và Lưu file -->
+  <!-- Khu vực 1: Trạng thái & Nút Xuất File -->
   <div class="card">
-    <div class="action-bar">
-      <button class="btn btn-primary" onclick="loadFromOnline()">🔄 Tải dữ liệu từ web (data.txt)</button>
-      <button class="btn btn-success" onclick="downloadTxtFile()">💾 Xuất & Tải file data.txt mới</button>
+    <div class="status-bar" id="statusBar">
+      <span id="statusText" style="color: #64748b;">⏳ Đang tự động tải dữ liệu từ data.txt...</span>
+      <button class="btn btn-success" onclick="downloadTxtFile()">💾 Tải file data.txt đã chỉnh sửa về máy</button>
     </div>
-    <div id="statusMsg" style="font-size: 0.9rem; color: #64748b;">Chưa tải dữ liệu... Hãy bấm "Tải dữ liệu từ web"</div>
   </div>
 
   <!-- Khu vực 2: Form Thêm / Sửa -->
@@ -190,21 +194,31 @@
   </div>
 
   <script>
-    let records = [];
+  let records = [];
     let editIndex = -1; // -1 nghĩa là đang ở chế độ Thêm mới, số nguyên >= 0 là chế độ Sửa
 
-    // 1. Tải dữ liệu từ file data.txt trên host
-    async function loadFromOnline() {
+    // 1. TỰ ĐỘNG tải dữ liệu từ file data.txt ngay khi mở trang
+    async function loadDataAutomatically() {
+      const statusText = document.getElementById('statusText');
+      
       try {
-        const response = await fetch('data.txt?t=' + new Date().getTime(), { cache: 'no-store' });
-        if (!response.ok) throw new Error("Không tìm thấy file data.txt");
+        // Dùng './data.txt' kết hợp cache buster để luôn tìm đúng file hiện tại trên thư mục GitHub
+        const url = './data.txt?t=' + new Date().getTime();
+        const response = await fetch(url, { cache: 'no-store' });
+        
+        if (!response.ok) {
+          throw new Error(`Mã lỗi ${response.status}: Không tìm thấy file data.txt`);
+        }
+        
         const rawText = await response.text();
         parseTextToData(rawText);
         
-        document.getElementById('statusMsg').innerText = "✅ Đã tải thành công dữ liệu!";
-        document.getElementById('statusMsg').style.color = "#15803d";
+        statusText.innerHTML = "✅ Đã tải thành công dữ liệu từ GitHub!";
+        statusText.style.color = "#15803d";
       } catch (err) {
-        alert("Lỗi tải file: " + err.message);
+        statusText.innerHTML = "❌ Lỗi: " + err.message + " (Đảm bảo file data.txt nằm cùng thư mục)";
+        statusText.style.color = "#dc2626";
+        document.getElementById('dataTableBody').innerHTML = '<tr><td colspan="6" style="text-align: center; color: #dc2626;">Lỗi tải dữ liệu. Vui lòng kiểm tra lại file data.txt trên GitHub.</td></tr>';
       }
     }
 
