@@ -618,8 +618,6 @@ function parseTextToData(rawText) {
         statusText.innerHTML = "✅ Cập nhật cơ sở dữ liệu thành công! Đợi vài giây để hệ thống web cập nhật.";
         statusText.style.color = "#15803d";
         
-        // Tải lại dữ liệu mới sau khi push thành công
-        setTimeout(loadDataAutomatically, 3000);
 
       } catch (err) {
         statusText.innerHTML = "❌ LỖI: " + err.message;
