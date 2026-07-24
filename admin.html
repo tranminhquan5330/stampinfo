@@ -339,7 +339,7 @@ function parseTextToData(rawText) {
       const formContent = document.getElementById('inputContent').value.trim();
 
         // Kiểm tra xem người dùng có bỏ trống ô nào không
-        if (!formId || !formTitle || !formDate || !formStatus || !formContent) {
+        if (!formId || !formTitle || !formDate || !formStatus || !formPrint || !formQty || !formContent) {
           alert("⚠️ VUI LÒNG ĐIỀN ĐẦY ĐỦ THÔNG TIN VÀO CÁC Ô TRỐNG!\n\n(Bạn đang để trống một số mục, hãy kiểm tra lại).");
           return;
         }
