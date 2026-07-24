@@ -280,10 +280,19 @@ function parseTextToData(rawText) {
       renderTable();
     }
 
-    // Hàm an toàn để chuyển đổi ký tự nháy kép nhằm đưa vào tooltip
     function escapeHTML(str) {
       return str.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
+
+    function renderTable() {
+      const tbody = document.getElementById('dataTableBody');
+      tbody.innerHTML = '';
+
+      if (records.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Chưa có dữ liệu. Hãy thêm mã mới!</td></tr>';
+        document.getElementById('totalRows').innerText = 0;
+        return;
+      }
 
 // ĐIỂM THAY ĐỔI: Chạy vòng lặp ngược từ dưới lên trên (Last In - First Out)
       for (let index = records.length - 1; index >= 0; index--) {
