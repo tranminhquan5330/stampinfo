@@ -131,6 +131,20 @@
 
   <h2>⚙️ Quản Lý Dữ Liệu Trích Lục (data.txt)</h2>
 
+<!-- KHUNG CẤU HÌNH GITHUB API (Chỉ cài đặt lần đầu tiên) -->
+  <div class="card config-box">
+    <details>
+      <summary style="cursor: pointer; font-weight: bold; color: #0284c7;">⚙️ Cấu hình kết nối trực tiếp GitHub (Bấm để mở cài đặt)</summary>
+      <div class="config-grid">
+        <input type="text" id="ghOwner" placeholder="Tên tài khoản GitHub (Owner)">
+        <input type="text" id="ghRepo" placeholder="Tên Repository">
+        <input type="password" id="ghToken" placeholder="GitHub Personal Access Token (PAT)">
+        <button class="btn btn-primary" onclick="saveConfig()">Lưu cấu hình</button>
+      </div>
+      <small style="color: #64748b; display: block; margin-top: 5px;">* Token cần quyền <b>repo</b>. Token được lưu an toàn trên trình duyệt của bạn.</small>
+    </details>
+  </div>
+  
   <!-- Khu vực 1: Trạng thái & Nút Xuất File -->
   <div class="card">
     <div class="status-bar" id="statusBar">
