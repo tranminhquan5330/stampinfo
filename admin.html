@@ -255,7 +255,7 @@
           const [id, title, date, status, print, qty, content] = clean.split('|');
           if (id) {
             records.push({
-              id: id ? title.trim() : '',
+              id: id ? id.trim() : '',
               title: title ? title.trim() : '',
               date: date ? date.trim() : '',
               status: status ? status.trim() : '',
