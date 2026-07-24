@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Dữ liệu Hệ thống QR</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --danger: #ef4444;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --bg: #f8fafc;
+      --card: #ffffff;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: #334155;
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 0 15px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    h2, h3 { margin-top: 0; color: #0f172a; }
+
+    .action-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    /* Bố cục Form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+    .form-group-full { grid-column: span 2; }
+
+    input, textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 0.95rem;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+    }
+
+    /* Nút bấm */
+    .btn {
+      padding: 9px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      font-size: 0.95rem;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-primary { background-color: var(--primary); color: white; }
+    .btn-danger { background-color: var(--danger); color: white; padding: 6px 12px; font-size: 0.85rem; }
+    .btn-warning { background-color: var(--warning); color: white; padding: 6px 12px; font-size: 0.85rem; }
+    .btn-success { background-color: var(--success); color: white; font-size: 1rem; }
+    .btn-secondary { background-color: #e2e8f0; color: #475569; }
+
+    /* Bảng dữ liệu */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 12px;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    th { background-color: #f1f5f9; white-space: nowrap; }
+    tr:hover { background-color: #f8fafc; }
+    
+    .badge-code {
+      font-family: monospace;
+      font-weight: bold;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .action-btns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>⚙️ Quản Lý Dữ Liệu Trích Lục (data.txt)</h2>
+
+  <!-- Khu vực 1: Tải và Lưu file -->
+  <div class="card">
+    <div class="action-bar">
+      <button class="btn btn-primary" onclick="loadFromOnline()">🔄 Tải dữ liệu từ web (data.txt)</button>
+      <button class="btn btn-success" onclick="downloadTxtFile()">💾 Xuất & Tải file data.txt mới</button>
+    </div>
+    <div id="statusMsg" style="font-size: 0.9rem; color: #64748b;">Chưa tải dữ liệu... Hãy bấm "Tải dữ liệu từ web"</div>
+  </div>
+
+  <!-- Khu vực 2: Form Thêm / Sửa -->
+  <div class="card" id="formSection" style="border-top: 4px solid var(--primary);">
+    <h3 id="formTitle">➕ Thêm dữ liệu mới</h3>
+    <form id="dataForm" onsubmit="handleFormSubmit(event)">
+      <div class="form-grid">
+        <div>
+          <label>Mã bộ (ID):</label>
+          <input type="text" id="inputId" placeholder="VD: MA04" required>
+        </div>
+        <div>
+          <label>Tên bộ tem:</label>
+          <input type="text" id="inputTitle" placeholder="VD: Quyết định bổ nhiệm..." required>
+        </div>
+        <div>
+          <label>Ngày phát hành:</label>
+          <input type="text" id="inputDate" placeholder="VD: 24/07/2026" required>
+        </div>
+        <div>
+          <label>Tên tác giả:</label>
+          <input type="text" id="inputStatus" placeholder="VD: ..." required>
+        </div>
+        <div>
+          <label>Tên nhà in:</label>
+          <input type="text" id="inputPrint" placeholder="VD: ..." required>
+        </div>
+        <div>
+          <label>Số lượng tem trong bộ:</label>
+          <input type="text" id="inputQty" placeholder="VD: ..." required>
+        </div>
+        <div class="form-group-full">
+          <label>Nội dung chi tiết (Nội dung trích lục):</label>
+          <textarea id="inputContent" rows="3" placeholder="Nhập nội dung chi tiết..." required></textarea>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button type="submit" class="btn btn-primary" id="btnSubmit">Thêm vào bảng</button>
+        <button type="button" class="btn btn-secondary" id="btnCancelEdit" style="display: none;" onclick="cancelEdit()">Hủy chỉnh sửa</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Khu vực 3: Bảng dữ liệu -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h3>📋 Danh sách mã hiện tại (<span id="totalRows">0</span>)</h3>
+    </div>
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 80px;">Mã ID</th>
+            <th>Tên Văn Bản</th>
+            <th style="width: 100px;">Ngày Cấp</th>
+            <th style="width: 110px;">Trạng Thái</th>
+            <th>Nội Dung</th>
+            <th style="width: 140px;">Thao Tác</th>
+          </tr>
+        </thead>
+        <tbody id="dataTableBody">
+          <tr><td colspan="6" style="text-align: center; color: #94a3b8;">Bấm "Tải dữ liệu" để xem danh sách</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let records = [];
+    let editIndex = -1; // -1 nghĩa là đang ở chế độ Thêm mới, số nguyên >= 0 là chế độ Sửa
+
+    // 1. Tải dữ liệu từ file data.txt trên host
+    async function loadFromOnline() {
+      try {
+        const response = await fetch('data.txt?t=' + new Date().getTime(), { cache: 'no-store' });
+        if (!response.ok) throw new Error("Không tìm thấy file data.txt");
+        const rawText = await response.text();
+        parseTextToData(rawText);
+        
+        document.getElementById('statusMsg').innerText = "✅ Đã tải thành công dữ liệu!";
+        document.getElementById('statusMsg').style.color = "#15803d";
+      } catch (err) {
+        alert("Lỗi tải file: " + err.message);
+      }
+    }
+
+    // Phân tích chuỗi text thành mảng
+    function parseTextToData(rawText) {
+      records = [];
+      const lines = rawText.split('\n');
+      lines.forEach(line => {
+        const clean = line.trim();
+        if (clean) {
+          const [id, title, date, status, print, qty, content] = clean.split('|');
+          if (id) {
+            records.push({
+              title: title ? title.trim() : '',
+              date: date ? date.trim() : '',
+              status: status ? status.trim() : '',
+              print: print ? print.trim() : '',
+              qty: qty ? qty.trim() : '',
+              content: content ? content.trim() : ''
+            });
+          }
+        }
+      });
+      renderTable();
+    }
+
+    // 2. Hiển thị bảng
+    function renderTable() {
+      const tbody = document.getElementById('dataTableBody');
+      tbody.innerHTML = '';
+
+      if (records.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Chưa có dữ liệu. Hãy thêm mới!</td></tr>';
+        document.getElementById('totalRows').innerText = 0;
+        return;
+      }
+
+      records.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        // Đánh dấu nền nếu dòng đó đang được sửa
+        if (index === editIndex) tr.style.backgroundColor = '#fffbeb'; 
+
+        tr.innerHTML = `
+          <td><span class="badge-code">${item.id}</span></td>
+          <td><b>${item.title}</b></td>
+          <td>${item.date}</td>
+          <td>${item.status}</td>
+          <td>${item.print}</td>
+          <td>${item.qty}</td>
+          <td style="white-space: pre-line; max-width: 300px; font-size: 0.85rem;">${item.content}</td>
+          <td>
+            <div class="action-btns">
+              <button class="btn btn-warning" onclick="startEdit(${index})">Sửa</button>
+              <button class="btn btn-danger" onclick="deleteRow(${index})">Xóa</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('totalRows').innerText = records.length;
+    }
+
+    // 3. Xử lý Form: Thêm Mới hoặc Cập Nhật
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      
+      const formId = document.getElementById('inputId').value.trim();
+      const formTitle = document.getElementById('inputTitle').value.trim();
+      const formDate = document.getElementById('inputDate').value.trim();
+      const formStatus = document.getElementById('inputStatus').value.trim();
+      const formStatus = document.getElementById('inputPrint').value.trim();
+      const formStatus = document.getElementById('inputQty').value.trim();
+      const formContent = document.getElementById('inputContent').value.trim();
+
+      // Kiểm tra trùng ID (Chỉ báo lỗi nếu mã trùng với 1 mã khác KHÔNG phải mã đang sửa)
+      const isDuplicate = records.some((r, idx) => r.id === formId && idx !== editIndex);
+      if (isDuplicate) {
+        alert(`Lỗi: Mã "${formId}" đã tồn tại trong hệ thống! Vui lòng chọn mã khác.`);
+        return;
+      }
+
+      // Xoá dấu | trong nội dung để tránh làm hỏng cấu trúc file txt
+      const safeTitle = formTitle.replace(/\|/g, '-');
+      const safeDate = formDate.replace(/\|/g, '-');
+      const safeStatus = formStatus.replace(/\|/g, '-');
+      const safePrint = formStatus.print(/\|/g, '-');
+      const safeQty = formStatus.qty(/\|/g, '-');
+      const safeContent = formContent.replace(/\|/g, '-').replace(/\n/g, ' '); // Đổi ngắt dòng thành khoảng trắng
+
+      const newData = { id: formId, title: safeTitle, date: safeDate, status: safeStatus, status: safePrint, status: safeQty, content: safeContent };
+
+      if (editIndex === -1) {
+        // CHẾ ĐỘ: THÊM MỚI
+        records.push(newData);
+      } else {
+        // CHẾ ĐỘ: CẬP NHẬT
+        records[editIndex] = newData;
+        alert(`Đã cập nhật thành công mã "${formId}"`);
+      }
+
+      // Đưa giao diện về trạng thái bình thường
+      cancelEdit();
+      renderTable();
+    }
+
+    // 4. Kích hoạt chế độ Sửa
+    function startEdit(index) {
+      editIndex = index;
+      const item = records[index];
+
+      // Đưa dữ liệu lên Form
+      document.getElementById('inputId').value = item.id;
+      document.getElementById('inputTitle').value = item.title;
+      document.getElementById('inputDate').value = item.date;
+      document.getElementById('inputStatus').value = item.status;
+      document.getElementById('inputPrint').value = item.print;
+      document.getElementById('inputQty').value = item.qty;
+      document.getElementById('inputContent').value = item.content;
+
+      // Đổi giao diện Form sang chế độ Cập Nhật
+      const formSection = document.getElementById('formSection');
+      formSection.style.borderTopColor = 'var(--warning)';
+      document.getElementById('formTitle').innerHTML = `✏️ Đang chỉnh sửa mã: <b style="color: var(--warning)">${item.id}</b>`;
+      
+      const btnSubmit = document.getElementById('btnSubmit');
+      btnSubmit.innerText = "Lưu Cập Nhật";
+      btnSubmit.style.backgroundColor = "var(--warning)";
+      document.getElementById('btnCancelEdit').style.display = 'inline-block';
+
+      renderTable(); // Render lại để highlight dòng đang sửa
+      window.scrollTo({ top: formSection.offsetTop - 20, behavior: 'smooth' }); // Cuộn màn hình lên Form
+    }
+
+    // Hủy chế độ sửa -> Trở về Thêm mới
+    function cancelEdit() {
+      editIndex = -1;
+      document.getElementById('dataForm').reset();
+      
+      const formSection = document.getElementById('formSection');
+      formSection.style.borderTopColor = 'var(--primary)';
+      document.getElementById('formTitle').innerHTML = "➕ Thêm dữ liệu mới";
+      
+      const btnSubmit = document.getElementById('btnSubmit');
+      btnSubmit.innerText = "Thêm vào bảng";
+      btnSubmit.style.backgroundColor = "var(--primary)";
+      document.getElementById('btnCancelEdit').style.display = 'none';
+
+      renderTable();
+    }
+
+    // 5. Xóa Hàng
+    function deleteRow(index) {
+      if (confirm(`⚠️ Bạn có chắc chắn muốn XÓA VĨNH VIỄN mã "${records[index].id}"?`)) {
+        // Nếu dòng đang bị xóa là dòng đang sửa thì hủy chế độ sửa
+        if (editIndex === index) cancelEdit(); 
+        
+        records.splice(index, 1);
+        
+        // Cập nhật lại editIndex nếu nó nằm sau dòng bị xóa
+        if (editIndex > index) editIndex--; 
+        
+        renderTable();
+      }
+    }
+
+    // 6. Xuất Dữ liệu ra file text
+    function downloadTxtFile() {
+      if (records.length === 0) {
+        alert("Dữ liệu đang trống, không có gì để xuất!");
+        return;
+      }
+
+      // Nối các thuộc tính bằng dấu | và nối các dòng bằng ký tự xuống dòng (\n)
+      const textContent = records.map(r => 
+        `${r.id}|${r.title}|${r.date}|${r.status}|${r.content}`
+      ).join('\n');
+
+      const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'data.txt';
+      link.click();
+    }
+
+    // Tự động tải dữ liệu khi trang web vừa mở lên
+    window.addEventListener('DOMContentLoaded', loadFromOnline);
+  </script>
+</body>
+</html>
