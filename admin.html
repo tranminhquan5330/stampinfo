@@ -158,11 +158,11 @@
         </div>
         <div>
           <label>Tên tác giả:</label>
-          <input type="text" id="inputStatus" placeholder="VD: ...">
+          <input type="text" id="inputStatus" placeholder="VD: ..." required>
         </div>
         <div>
           <label>Tên nhà in:</label>
-          <input type="text" id="inputPrint" placeholder="VD: ...">
+          <input type="text" id="inputPrint" placeholder="VD: ..." required>
         </div>
         <div>
           <label>Số lượng tem trong bộ:</label>
@@ -281,7 +281,12 @@ function parseTextToData(rawText) {
     }
 
     function escapeHTML(str) {
-      return str.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      if (str === undefined || str === null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/["']/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
     }
 
     function renderTable() {
