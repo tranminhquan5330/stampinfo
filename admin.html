@@ -311,8 +311,8 @@
       const formTitle = document.getElementById('inputTitle').value.trim();
       const formDate = document.getElementById('inputDate').value.trim();
       const formStatus = document.getElementById('inputStatus').value.trim();
-      const formStatus = document.getElementById('inputPrint').value.trim();
-      const formStatus = document.getElementById('inputQty').value.trim();
+      const formPrin = document.getElementById('inputPrint').value.trim();
+      const formQty = document.getElementById('inputQty').value.trim();
       const formContent = document.getElementById('inputContent').value.trim();
 
       // Kiểm tra trùng ID (Chỉ báo lỗi nếu mã trùng với 1 mã khác KHÔNG phải mã đang sửa)
@@ -326,8 +326,8 @@
       const safeTitle = formTitle.replace(/\|/g, '-');
       const safeDate = formDate.replace(/\|/g, '-');
       const safeStatus = formStatus.replace(/\|/g, '-');
-      const safePrint = formStatus.print(/\|/g, '-');
-      const safeQty = formStatus.qty(/\|/g, '-');
+      const safePrint = formPrint.print(/\|/g, '-');
+      const safeQty = formQty.qty(/\|/g, '-');
       const safeContent = formContent.replace(/\|/g, '-').replace(/\n/g, ' '); // Đổi ngắt dòng thành khoảng trắng
 
       const newData = { id: formId, title: safeTitle, date: safeDate, status: safeStatus, status: safePrint, status: safeQty, content: safeContent };
